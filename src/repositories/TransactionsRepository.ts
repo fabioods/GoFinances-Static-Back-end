@@ -14,7 +14,7 @@ interface TransactionDTO {
 
 interface TransactionBalance {
   transactions: Transaction[];
-  balace: Balance;
+  balance: Balance;
 }
 
 class TransactionsRepository {
@@ -25,10 +25,11 @@ class TransactionsRepository {
   }
 
   public getTransactionBalance(): TransactionBalance {
-    return {
+    const transactionBalance = {
       transactions: this.all(),
-      balace: this.getBalance(),
+      balance: this.getBalance(),
     };
+    return transactionBalance;
   }
 
   public all(): Transaction[] {
@@ -43,16 +44,21 @@ class TransactionsRepository {
       .filter(t => t.type === 'outcome')
       .reduce((total, t) => total + t.value, 0);
     const total = income - outcome;
-    const balace: Balance = {
+    const balance: Balance = {
       income,
       outcome,
       total,
     };
-    return balace;
+    return balance;
   }
 
   public create({ title, value, type }: TransactionDTO): Transaction {
     const t = new Transaction({ title, value, type });
+    const balance = this.getBalance();
+    const currentValue = balance.total - value;
+    if (type === 'outcome' && currentValue < 0) {
+      throw Error('You can not outcome more than you have!');
+    }
     this.transactions.push(t);
     return t;
   }
