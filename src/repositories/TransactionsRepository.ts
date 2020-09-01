@@ -54,11 +54,6 @@ class TransactionsRepository {
 
   public create({ title, value, type }: TransactionDTO): Transaction {
     const t = new Transaction({ title, value, type });
-    const balance = this.getBalance();
-    const currentValue = balance.total - value;
-    if (type === 'outcome' && currentValue < 0) {
-      throw Error('You can not outcome more than you have!');
-    }
     this.transactions.push(t);
     return t;
   }

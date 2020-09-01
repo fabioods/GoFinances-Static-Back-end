@@ -15,6 +15,11 @@ class CreateTransactionService {
   }
 
   public execute({ title, value, type }: Request): Transaction {
+    const balance = this.transactionsRepository.getBalance();
+    const currentValue = balance.total - value;
+    if (type === 'outcome' && currentValue < 0) {
+      throw Error('You can not outcome more than you have!');
+    }
     const t = this.transactionsRepository.create({ title, value, type });
     return t;
   }
